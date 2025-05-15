@@ -2,19 +2,26 @@ FROM ubuntu:latest
 
 RUN apt-get update && apt-get install -y python3.10 python3-pip git
 
-RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
+# Step 1: Install required dependencies
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    curl \
+    git
+
+# Step 2: Add Python 3.10 repo and install Python
+RUN add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && \
-    apt-get install -y python3.10 python3.10-distutils python3-pip git curl
+    apt-get install -y python3.10 python3.10-distutils
 
-# Make sure pip3 is available and works
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+# Step 3: Install pip manually using get-pip.py
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python3.10 get-pip.py && \
+    rm get-pip.py
 
-# Install Python packages
+# Step 4: Install Python packages with pip
 RUN python3.10 -m pip install PyYAML
 
-# Copy feed.py
+# Step 5: Copy your app code
 COPY feed.py /usr/bin/feed.py
 
 COPY entrypoint.sh /entrypoint.sh
